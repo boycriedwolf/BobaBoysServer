@@ -1,0 +1,206 @@
+/* ============================== */
+/* Bootstrap Breakpoint Reference */
+/* ============================== */
+
+/* Extra small devices (phones, less than 768px) */
+/* No media query since this is the default in Bootstrap */
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: @screen-sm-min) { ... }
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: @screen-md-min) { ... }
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: @screen-lg-min) { ... }
+
+body{
+    font-family: "Helvetica-Neue",arial,1 sans-serif;
+}
+.bobaClearfix:after{
+    clear: both;
+    content: ".";
+    display: block;
+    font-size: 0;
+    height: 0;
+    line-height: 0;
+    visibility: hidden;
+}
+.container{
+    
+}
+    .navbarBoba{
+        background-color:#50D1A2;
+    }
+/*         Overwriting Bootstrap CSS */
+        .navbarBoba,
+        .navbar-inverse .navbar-toggle {
+            border-color: #43B189;
+        }        
+        .navbar-inverse .navbar-nav>li>a, 
+        .navbar-inverse .navbar-brand {
+            color: #fff;
+        }
+            .ember-view.active,
+            .ember-view.active:hover,
+            .ember-view.active:focus, 
+            .navbar-inverse .navbar-toggle:hover{
+                background-color:#43B189 !important;
+            }
+    .templateContainer{
+        margin-top: 51px;
+    }
+    .helloBoba{
+        position: relative;
+        background-color: rgba(0,0,0,0.4);
+    }
+    .helloBoba, .helloBobaBackDrop{
+        height: 400px;
+    }
+        #mainBannerContainer{
+        }
+            #mainBannerWrapper{
+            }
+                #mainBannerContent{
+                    color: #fff;
+                    text-shadow: 0px 0px 60px rgba(255,255,255,0.9);
+                }
+                    #mainBannerContent > h1{
+                        margin-top: 60px;
+                        margin-bottom: 34px;
+                        font-size: 78px;
+                        font-weight: 300;
+                    }
+                    #mainBannerContent > p{
+                        font-size: 40px;
+                        font-weight: 100;
+                    }
+                #ctaWrapper{
+                    margin-top: 60px;
+                    text-align:center;
+                }
+                @media (min-width: @screen-sm-min) { 
+                    #ctaWrapper{
+                        margin-top: 60px;
+                    }
+                }
+
+                    #ctaOrder{
+/*
+                        position: absolute;
+                        bottom: 50px;
+                        margin-left: -162.5px;
+*/
+                        font-size: 24px;
+                        padding: 12px 105px;
+                        background-color: #FC7F6A;
+                        border-radius: 4px;
+                        transition: all 0.2s;
+                        -moz-transition: all 0.2s;
+                        -o-transition: all 0.3s;
+                        -webkit-transition: all 0.2s;
+                    }
+                        #ctaOrder, #ctaOrder:hover{
+                            color: #fff;
+                        }
+                        #ctaOrder:hover{
+                            background-color: #F36A53;
+            	            -webkit-box-shadow: inset 0 -3px 0 #D12407;
+            	            -moz-box-shadow: inset 0 -5px 0 #D12407;
+                            box-shadow: inset 0 -3px 0 #D12407;
+                            text-decoration: none;
+                            cursor: pointer;
+                        }
+    .helloBobaBackDrop{
+        position: absolute;
+        top: 51px;
+        width: 100%;
+        z-index: -1;
+        background-image:url("../img/boba_large.jpg");
+        background-size: 100%;
+        background-position: 0px -96px;
+    }
+    .helloBobaDescrip{
+        
+    }
+        .helloBobaDescript > .container{
+            
+        }
+            .helloBobaDescrip .row{
+            }
+            .helloBobaDescrip{
+                margin-top: 25px;
+                text-align: center;
+                color: #A5A5A5;
+            }
+                .helloBobaDescrip > h4{
+                    font-size: 24px;
+                    font-weight: 200;
+                }
+                .helloBobaDescrip > p{
+                    font-size: 20px;
+                    font-weight: 100;
+                }
+                .helloBobaDescrip > .fa{
+                    font-size: 128px;
+                }
+    #hellobobaDeliv{
+        padding: 20px 0px;
+        background-color: #FFC455;
+        border: 1px solid #FFA555;
+        border-left: none;
+        border-right: none;
+        color: #fff;
+        margin: 40px 0px;
+    }
+        #delivDescrip{
+            text-align: center;
+            font-size: 28px;
+            font-weight: 200;
+        }
+        #delivHours{
+            text-align: center;
+            font-size: 16px;
+            font-weight: 100;
+        }
+            #delivHours .offsetHours{
+                text-indent: 56px;
+            }
+            #delivHours .offsetHours2{
+                text-indent: 8px;
+            }
+    #bobaMenu{
+        
+    }
+        #fullMenuContainer{
+        }
+            .menuItem{
+                color: #A5A5A5;
+                height: 80px;
+                padding: 15px;
+                margin: 10px 0px;
+                border: 1px solid #CCC;
+                border-radius: 3px;
+                background-color: #fff;
+            }
+                .itemWrapper{
+                    float:left;
+                    font-weight: 200;
+                }
+                    .itemTitle{
+                        font-size: 20px;
+                    }
+                    .itemDescrip{
+                        font-size: 16px;
+                    }
+                .addToCartWrapper{
+                    float: right;
+                    margin-top: 7px;
+                }
+                    .addToCart{
+                    }
+        #fullCart{
+            border: 1px solid #CCC;
+            border-radius: 3px;
+            height: 440px;
+        }
