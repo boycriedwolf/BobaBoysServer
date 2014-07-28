@@ -1,6 +1,8 @@
 package HelloBoba.Server;
 
 
+import helloBoba.Server.TestMiscMethods;
+
 import java.io.BufferedReader;
 
 import java.io.IOException;
@@ -37,11 +39,13 @@ import com.sun.net.httpserver.HttpHandler;
 @WebServlet (value="/setnewdefaultcreditcard", name="Set-New-Default-Credit-Card-Servlet")
 public class SetNewDefaultCreditCardServlet extends HttpServlet{
 
-	private String causeOfFailure = "";
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
-
+		String last4 = "";
+		int expMonth = 0;
+		int expYear = 0;
+		int userId = 0;
+		
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
 			if(inFromClient != null) {
@@ -52,41 +56,19 @@ public class SetNewDefaultCreditCardServlet extends HttpServlet{
 			e.printStackTrace();
 		}
 
-		JSONObject jsonObj = null;
+		JSONObject jsonObj = new JSONObject(jsonReqString);
 
-		//		try {
-		jsonObj = new JSONObject(jsonReqString);
-		//		} catch (JSONException e1) {
-		//			// TODO Auto-generated catch block
-		//			e1.printStackTrace();
-		//		}
-
-		String last4 = "";
-		int expMonth = 0;
-		int expYear = 0;
-		int userId = 0;
-		//		try {
 		last4 = jsonObj.getString("last4");
 		expMonth = jsonObj.getInt("exp_month");
 		expYear = jsonObj.getInt("exp_year");
 		userId = jsonObj.getInt("user_id");
-		//		} catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-
+		
 		JSONObject jsonResObj = new JSONObject();
-		//		try {
 		if(setNewDefaultCustomerCreditCard(userId, last4, expMonth, expYear)) {
-			jsonResObj.put(ServerConstants.REQUEST_STATUS, true);
+			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.SET_NEW_DEFAULT_CREDIT_CARD_SUCCESS);
 		}
-		else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
-		//		}
-		//		catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-
+		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
+		
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
 
@@ -110,7 +92,7 @@ public class SetNewDefaultCreditCardServlet extends HttpServlet{
 		Stripe.apiKey = "sk_test_CY8QQMarcq8pB4nhhQB8dZ6g";
 
 		try {
-			Customer cu = Customer.retrieve(MiscMethods.getCustomerId(userId));
+			Customer cu = Customer.retrieve(TestMiscMethods.getCustomerId(userId));
 			Map<String, Object> updateParams = new HashMap<String, Object>();
 			CustomerCardCollection listOfCards = cu.getCards();
 			List<Card> customerCardsList = listOfCards.getData();
@@ -124,19 +106,14 @@ public class SetNewDefaultCreditCardServlet extends HttpServlet{
 			cu.update(updateParams);
 			return true;
 		} catch (AuthenticationException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		} catch (InvalidRequestException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		} catch (APIConnectionException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		} catch (CardException e) {
-			causeOfFailure = e.getCode();
 			e.printStackTrace();
 		} catch (APIException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		}
 		return false;

@@ -3,20 +3,7 @@ package HelloBoba.Server;
 
 public class ServerConstants {
 
-	public static boolean LOGIN_SUCCESS = true;
-	public static boolean LOGIN_CREATE_SUCCESS = true;
-	public static boolean FB_TOKEN_UPDATE_SUCCESS = true;
-	public static boolean CUSTOMER_CREATE_SUCCESS = true;
-	public static boolean ORDER_PURCHASED_AND_SAVED_SUCCESS = true;
-	public static boolean ACCOUNT_AFFILIATION_SUCCESS = true;
-	public static boolean IS_ADMIN_ACCOUNT = true;
-	public static boolean SMS_SEND_SUCCESS = true;
-	public static boolean DEFAULT_ADDRESS_SET_SUCCESS = true;
-
 	
-	
-	public static String ADMIN_ACCOUNT = "admin";
-	public static String PASSWORD = "robashen123";
 	public static String DB_USER_TABLE = "user";
 	public static String DB_CURRENT_ORDER_TABLE  = "current_orders";
 	public static String DB_USER_QUEUE_TABLE = "user_queue";
@@ -25,7 +12,8 @@ public class ServerConstants {
 	public static String DB_CURRENT_ORDER_DETAILS_TABLE = "current_orders_details";
 	public static String DB_ORDER_HISTORY_DETAILS_TABLE = "order_history_details";
 	
-	
+
+	public static String LOGIN_CREATE_SUCCESS = "login_create_success";
 	public static String AFFILIATION = "lynbrook";
 	public static String REQUEST_STATUS = "status";
 	public static String RETRIEVE_ORDER_STATUS = "orders_exist";
@@ -44,8 +32,29 @@ public class ServerConstants {
 	public static String PHONE_NUMBER_EXISTS_IN_DB = "phone_number_exists_in_database";
 	public static String INVALID_EMAIL = "invalid_email";
 	public static String INVALID_PASSWORD = "invalid_password";
-	
-	
+	public static String ADMIN_ACCOUNT = "admin";
+	public static String PASSWORD = "robashen123";
+	public static String LONG_LIVED_FB_TOKEN = "long_lived_fb_token";
+	public static String ACCOUNT_AFFILIATION_SUCCESS = "account_affiliation_success";
+	public static String GENERIC_FAILURE = "generic_failure";
+	public static String CUSTOMER_CREATE_SUCCESS = "customer_create_success";
+	public static String CARD_ADD_SUCCESS = "card_add_success";
+	public static String DEFAULT_ADDRESS_SET_SUCCESS = "default_address_set_success";
+	public static String FB_TOKEN_UPDATE_SUCCESS = "fb_token_update_success";
+	public static String SMS_SEND_SUCCESS = "sms_send_success";
+	public static String ORDER_PURCHASED_AND_SAVED_SUCCESS = "order_purchased_and_saved_success";
+	public static String SAVE_ORDER_FAIL = "save_order_fail";
+	public static String SAVE_ORDER_DETAILS_FAIL = "save_order_details_fail";
+	public static String GENERIC_PURCHASE_ORDER_FAIL = "generic_purchase_order_fail";
+	public static String AFFILIATION_AND_ADDRESS_RETRIEVE_SUCCESS = "affiliation_and_address_retrieve_success";
+	public static String RETRIEVE_AFFILIATION_FAIL = "retrieve_affiliation_fail";
+	public static String RETRIEVE_ADDRESS_FAIL = "retrieve_address_fail";
+	public static String RETRIEVE_CARDS_SUCCESS = "retrieve_cards_success";
+	public static String SET_NEW_DEFAULT_CREDIT_CARD_SUCCESS = "set_new_credit_card_success";
+	public static String REMOVE_FROM_CURRENT_ORDERS_AND_UPDATE_LOGS_SUCCESS = "remove_from_current_orders_and_update_logs_success";
+	public static String UPDATE_QUEUE_SUCCESS = "update_queue_success";
+	public static String LOGIN_SUCCESS = "login_success";
+
 	
 	public static String USER_ID = "user_id";
 	public static String USER_IN_QUEUE = "in_queue";

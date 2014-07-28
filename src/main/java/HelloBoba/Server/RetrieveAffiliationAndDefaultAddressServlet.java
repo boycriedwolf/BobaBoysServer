@@ -25,80 +25,59 @@ import com.sun.net.httpserver.HttpHandler;
 @WebServlet (value="/retrieveaffiliationanddefaultaddress", name="Retrieve-Affiliation-And-Default-Address-Servlet")
 public class RetrieveAffiliationAndDefaultAddressServlet extends HttpServlet{
 
-	private String causeOfFailure;
-
-		public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-			String jsonReqString = "";
-
-			try {
-				BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
-				if(inFromClient != null) {
-					jsonReqString = inFromClient.readLine();
-				}
-			}catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		JSONObject jsonObj = null;
-
-//		try {
-			jsonObj = new JSONObject(jsonReqString);
-//		} catch (JSONException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-
-		int clientUserId = 0;
-		int customerUserId = 0;
-//		try {
-			clientUserId = jsonObj.getInt("client_user_id");
-			customerUserId = jsonObj.getInt("customer_user_id");
-//		} catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+		String jsonReqString = "";
+		int userId = 0;
 		String defaultString = "default";
 		String defaultDeliveryAddress = "default";
 		String affiliation = "default";
+
+		try {
+			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
+			if(inFromClient != null) {
+				jsonReqString = inFromClient.readLine();
+			}
+		}catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		JSONObject jsonObj = new JSONObject(jsonReqString);
+		userId = jsonObj.getInt("user_id");
+
 		JSONObject jsonResObj = new JSONObject();
 
-//		try {
-			if(MiscMethods.checkIfAdmin(clientUserId)) {
-				defaultDeliveryAddress = retrieveDefaultAddress(customerUserId);
-				affiliation = retrieveAffiliation(customerUserId);
-				if(!defaultString.equalsIgnoreCase(affiliation)) {
-					if(!defaultString.equalsIgnoreCase(defaultDeliveryAddress)) {
-						if(affiliation != null) {
-							jsonResObj.put("affiliation", affiliation);
-						}
-						else jsonResObj.put("affiliation", ServerConstants.NO_AFFILIATION);
-						if(defaultDeliveryAddress != null) {
-							jsonResObj.put("default_delivery_address", defaultDeliveryAddress);
-						}
-						else jsonResObj.put("default_delivery_address", ServerConstants.NO_DEFAULT_DELIVERY_ADDRESS);
-						jsonResObj.put(ServerConstants.REQUEST_STATUS, true);
-					}
-					else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+		defaultDeliveryAddress = retrieveDefaultAddress(userId);
+		affiliation = retrieveAffiliation(userId);
+		if(!defaultString.equalsIgnoreCase(affiliation)) {
+			if(!defaultString.equalsIgnoreCase(defaultDeliveryAddress)) {
+				if(affiliation != null) {
+					jsonResObj.put("affiliation", affiliation);
 				}
-				else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+				else jsonResObj.put("affiliation", ServerConstants.NO_AFFILIATION);
+				if(defaultDeliveryAddress != null) {
+					jsonResObj.put("default_delivery_address", defaultDeliveryAddress);
+				}
+				else jsonResObj.put("default_delivery_address", ServerConstants.NO_DEFAULT_DELIVERY_ADDRESS);
+				jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.AFFILIATION_AND_ADDRESS_RETRIEVE_SUCCESS);
 			}
-			else {
-				jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.CLIENT_IS_NOT_ADMIN);
-			}
+			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.RETRIEVE_ADDRESS_FAIL);
+		}
+		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.RETRIEVE_AFFILIATION_FAIL);
 
-			response.setContentType("application/json");
-			String jsonResString = jsonResObj.toString();
+		response.setContentType("application/json");
+		String jsonResString = jsonResObj.toString();
 
-			response.setBufferSize(jsonResString.length());  //lets client know how long
-			OutputStream outputStream;
-			try {
-				outputStream = response.getOutputStream();
-				outputStream.write(jsonResString.getBytes());
-				outputStream.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		response.setBufferSize(jsonResString.length());  //lets client know how long
+		OutputStream outputStream;
+		try {
+			outputStream = response.getOutputStream();
+			outputStream.write(jsonResString.getBytes());
+			outputStream.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
@@ -114,7 +93,6 @@ public class RetrieveAffiliationAndDefaultAddressServlet extends HttpServlet{
 				affiliation = rs.getString(1);
 			}
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 		return affiliation;
@@ -132,7 +110,6 @@ public class RetrieveAffiliationAndDefaultAddressServlet extends HttpServlet{
 				defaultDeliveryAddress = rs.getString(1);
 			}
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 		return defaultDeliveryAddress;

@@ -20,11 +20,13 @@ import org.json.*;
 @WebServlet (value="/accountaffiliation", name="Account-Affiliation-Servlet")
 public class AccountAffiliationServlet extends HttpServlet{
 
-	private String causeOfFailure;
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
-
+		int userId = 0;
+		String affiliation = "";
+		JSONObject jsonResObj = new JSONObject();
+		
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
 			if(inFromClient != null) {
@@ -35,29 +37,15 @@ public class AccountAffiliationServlet extends HttpServlet{
 			e.printStackTrace();
 		}
 
-		JSONObject jsonObj = null;
-		jsonObj = new JSONObject(jsonReqString);
-
-		//		InputStream inputStream = exchange.getRequestBody();
-		//		BufferedReader inFromClient = 
-		//				new BufferedReader(new InputStreamReader(inputStream));
-		//		
-		//		String jsonReqString = inFromClient.readLine();
-		//		JSONObject jsonObj = null;
-		//		jsonObj = new JSONObject(jsonReqString);
-
-		int userId = 0;
-		String affiliation = "";
+		JSONObject jsonObj = new JSONObject(jsonReqString);
 		userId = jsonObj.getInt("user_id");
 		affiliation = jsonObj.getString("affiliation");
-
-		JSONObject jsonResObj = new JSONObject();
 
 		if(setAccountAffiliation(userId, affiliation) && setAffilationForUserQueue(userId, affiliation)) {
 			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.ACCOUNT_AFFILIATION_SUCCESS);
 		}
 		else {
-			jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
 		}
 
 		response.setContentType("application/json");
@@ -87,7 +75,6 @@ public class AccountAffiliationServlet extends HttpServlet{
 			ps.executeUpdate();
 			return true;
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 		return false;
@@ -107,7 +94,6 @@ public class AccountAffiliationServlet extends HttpServlet{
 			ps.executeUpdate();	
 			return true;
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}		
 		return false;

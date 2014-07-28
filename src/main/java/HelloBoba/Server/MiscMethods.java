@@ -39,6 +39,30 @@ public class MiscMethods {
 		return con;
 	}
 
+	public static Connection establishTestDatabaseConnection() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String connectionUrl = "jdbc:mysql://helloboba.cjqc09pyraps.us-east-1.rds.amazonaws.com:3306/test";
+		Connection con = null;
+		try {
+			con = DriverManager.getConnection(connectionUrl, "admin", "robashen123");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return con;
+	}
+	
 	public static String getCustomerId(int userId) {
 		Connection con = MiscMethods.establishDatabaseConnection();
 		PreparedStatement ps;
@@ -96,7 +120,7 @@ public class MiscMethods {
 		}
 		return phoneNumber;
 	}
-	
+
 	public static String convertTime(long time) {
 		Date date = new Date(time);
 		Format format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -163,12 +187,12 @@ public class MiscMethods {
 		while(orderKeys.hasNext()) {
 			String menuItemName = orderKeys.next();
 			if(menuItemName.equals("1")) {
-//				try {
-					pearlMilkTeaQuantity = jsonOrderObj.getInt(menuItemName);
-//				} catch (JSONException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}	
+				//				try {
+				pearlMilkTeaQuantity = jsonOrderObj.getInt(menuItemName);
+				//				} catch (JSONException e) {
+				//					// TODO Auto-generated catch block
+				//					e.printStackTrace();
+				//				}	
 			}
 		}
 		return pearlMilkTeaQuantity;
@@ -192,24 +216,26 @@ public class MiscMethods {
 		return numFree;
 	}
 
-	public static int numberOfStampsUserHas(int userId) {
-		Connection con = MiscMethods.establishDatabaseConnection();
-		PreparedStatement ps;
-		int numStamps = 0;
-		try {
-			ps = con.prepareStatement("SELECT stamp_card_counter FROM " + ServerConstants.DB_USER_TABLE + " WHERE user_id = ?");
-			ps.setInt(1, userId);
-			ResultSet rs = ps.executeQuery();
-			if(rs.next()) {
-				numStamps = rs.getInt(1);
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return numStamps;
-	}
-	
+	/* not in first release */
+
+	//	public static int numberOfStampsUserHas(int userId) {
+	//		Connection con = MiscMethods.establishDatabaseConnection();
+	//		PreparedStatement ps;
+	//		int numStamps = 0;
+	//		try {
+	//			ps = con.prepareStatement("SELECT stamp_card_counter FROM " + ServerConstants.DB_USER_TABLE + " WHERE user_id = ?");
+	//			ps.setInt(1, userId);
+	//			ResultSet rs = ps.executeQuery();
+	//			if(rs.next()) {
+	//				numStamps = rs.getInt(1);
+	//			}
+	//		} catch (SQLException e) {
+	//			// TODO Auto-generated catch block
+	//			e.printStackTrace();
+	//		}
+	//		return numStamps;
+	//	}
+
 	public static boolean checkIfAdmin(int userId) {
 		Connection con = MiscMethods.establishDatabaseConnection();
 		PreparedStatement ps;
@@ -250,7 +276,7 @@ public class MiscMethods {
 		}
 		return menuItemName;
 	}
-	
+
 	public static int calculatePriceOfMenuId(int menuId) {
 		Connection con = MiscMethods.establishDatabaseConnection();
 		PreparedStatement ps;
@@ -269,7 +295,7 @@ public class MiscMethods {
 		}
 		return price;
 	}
-	
+
 	public static int getUserIdCorrespondingToOrderId(int orderId) {
 		Connection con = MiscMethods.establishDatabaseConnection();
 		PreparedStatement ps;
@@ -288,7 +314,7 @@ public class MiscMethods {
 		}
 		return userId;
 	}
-	
+
 	public static boolean updateFBToken(int userId, String fbToken) {
 		Connection con = MiscMethods.establishDatabaseConnection();
 		PreparedStatement ps;
@@ -304,7 +330,7 @@ public class MiscMethods {
 		}
 		return false;
 	}
-	
+
 	public static boolean setFBConnectForUserQueue(int userId) {
 		Connection con = MiscMethods.establishDatabaseConnection();
 		PreparedStatement ps;

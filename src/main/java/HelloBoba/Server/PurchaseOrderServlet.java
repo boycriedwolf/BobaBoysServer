@@ -37,10 +37,16 @@ import com.sun.net.httpserver.HttpHandler;
 @WebServlet (value="/purchaseorders", name="Purchase-Orders-Servlet")
 public class PurchaseOrderServlet extends HttpServlet{
 
-	private String causeOfFailure;
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
+		int userId = 0;
+		int totalPrice = 0;
+		int numberOfFreePearlMilkTeaUsed = 0;
+		boolean futureOrder;
+		boolean payingWithCreditCard = false;
+		String timeToDeliver = "";
+		String deliveryLocation = "";
+		int updatedNumOfStamps = 0;
 
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
@@ -51,48 +57,34 @@ public class PurchaseOrderServlet extends HttpServlet{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JSONObject jsonObj = null;
-		JSONObject jsonOrderObj = null;
-
-		//		try {
-		jsonObj = new JSONObject(jsonReqString);
-		//		} catch (JSONException e1) {
-		//			// TODO Auto-generated catch block
-		//			e1.printStackTrace();
-		//		}
-
-		int userId = 0;
-		int totalPrice = 0;
-		int numberOfFreePearlMilkTeaUsed = 0;
-		boolean futureOrder;
-		boolean payingWithCreditCard = false;
-		String timeToDeliver = "";
-		String deliveryLocation = "";
-		//		try {
-		jsonOrderObj = jsonObj.getJSONObject("order");
+		JSONObject jsonObj = new JSONObject(jsonReqString);
+		JSONObject jsonResObj = new JSONObject();
+		
+		//************retrieving all the details of the order from the jsonorderobj******//
+		JSONObject jsonOrderObj = jsonObj.getJSONObject("order");
 		userId = jsonObj.getInt("user_id");
 		totalPrice = jsonObj.getInt("total_price");
 		payingWithCreditCard = jsonObj.getBoolean("paying_with_credit_card");
 		futureOrder = jsonObj.getBoolean("future_order");
+		
 		if(futureOrder) {
 			timeToDeliver = jsonObj.getString("time_to_deliver");
 		}
 		else timeToDeliver = "now";
+		
 		numberOfFreePearlMilkTeaUsed = jsonObj.getInt("number_of_free_pearl_milk_tea_used");
 		deliveryLocation = jsonObj.getString("delivery_location");
-		//		} catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
 
+		//***********************finished retrieving*************************************//
+		
+		//finding the current time
 		Date date = new Date();
 		long currentLong = date.getTime();
 		String currentTime = MiscMethods.convertTime(currentLong);
 
-		JSONObject jsonResObj = new JSONObject();
 		int numOfPMTOrdered = MiscMethods.numberOfPearlMilkTeaInOrder(jsonOrderObj);
-		int updatedNumOfStamps = 0;
-		//		try {
+	
+		//functionality of stamp cards commented out
 		if(payingWithCreditCard) {
 			if(purchaseOrder(userId, totalPrice)) {
 				int orderNumber = saveCustomerOrderDetailsToDatabase(userId, totalPrice, 
@@ -100,45 +92,40 @@ public class PurchaseOrderServlet extends HttpServlet{
 						currentTime);
 				if(orderNumber != 0) {
 					if(saveCustomerOrderToDatabase(jsonOrderObj, orderNumber)) {
-						updatedNumOfStamps = incrementStampCardAndFreePMTCounter(
-								userId, numOfPMTOrdered, 
-								numberOfFreePearlMilkTeaUsed);
+//						updatedNumOfStamps = incrementStampCardAndFreePMTCounter(
+//								userId, numOfPMTOrdered, 
+//								numberOfFreePearlMilkTeaUsed);
 						jsonResObj.put(ServerConstants.REQUEST_STATUS, 
 								ServerConstants.ORDER_PURCHASED_AND_SAVED_SUCCESS);
 						jsonResObj.put("order_number", orderNumber);
-						jsonResObj.put("number_of_stamps", updatedNumOfStamps);
+//						jsonResObj.put("number_of_stamps", updatedNumOfStamps);
 					}
-					else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+					else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.SAVE_ORDER_FAIL);
 				}
-				else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+				else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.SAVE_ORDER_DETAILS_FAIL);
 			}
-			else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_PURCHASE_ORDER_FAIL);
 		}
 		else {
-			updatedNumOfStamps = incrementStampCardAndFreePMTCounter(userId, 
-					numOfPMTOrdered, numberOfFreePearlMilkTeaUsed);				
+//			updatedNumOfStamps = incrementStampCardAndFreePMTCounter(userId, 
+//					numOfPMTOrdered, numberOfFreePearlMilkTeaUsed);				
 			int orderNumber = saveCustomerOrderDetailsToDatabase(userId, totalPrice, 
 					timeToDeliver, 0, deliveryLocation, numberOfFreePearlMilkTeaUsed,
 					currentTime);
 			if(orderNumber != 0) {
 				if(saveCustomerOrderToDatabase(jsonOrderObj, orderNumber)) {
-					updatedNumOfStamps = incrementStampCardAndFreePMTCounter(
-							userId, numOfPMTOrdered, 
-							numberOfFreePearlMilkTeaUsed);
+//					updatedNumOfStamps = incrementStampCardAndFreePMTCounter(
+//							userId, numOfPMTOrdered, 
+//							numberOfFreePearlMilkTeaUsed);
 					jsonResObj.put(ServerConstants.REQUEST_STATUS, 
 							ServerConstants.ORDER_PURCHASED_AND_SAVED_SUCCESS);
 					jsonResObj.put("order_number", orderNumber);
-					jsonResObj.put("number_of_stamps", updatedNumOfStamps);
+//					jsonResObj.put("number_of_stamps", updatedNumOfStamps);
 				}
-				else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+				else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.SAVE_ORDER_FAIL);
 			}
-			else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.SAVE_ORDER_DETAILS_FAIL);
 		}
-		//		}
-		//		catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
 
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
@@ -168,19 +155,14 @@ public class PurchaseOrderServlet extends HttpServlet{
 			Charge.create(chargeParams);
 			return true;
 		} catch (AuthenticationException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		} catch (InvalidRequestException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		} catch (APIConnectionException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		} catch (CardException e) {
-			causeOfFailure = e.getCode();
 			e.printStackTrace();
 		} catch (APIException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		}
 		return false;
@@ -212,13 +194,8 @@ public class PurchaseOrderServlet extends HttpServlet{
 			ps.executeBatch();
 			return true;
 		} catch (SQLException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		}
-		//		} catch (JSONException e) {
-		//			causeOfFailure = e.getMessage();
-		//			e.printStackTrace();
-		//		}
 		return false;
 	}
 
@@ -250,49 +227,67 @@ public class PurchaseOrderServlet extends HttpServlet{
 			}	
 			return orderNumber;
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 		return orderNumber;
 	}
 
-	private int incrementStampCardAndFreePMTCounter(int userId, int numOfPMTOrdered, int numberOfFreePearlMilkTeaUsed) {
+	private boolean incrementNumberOfPMTPurchased(int userId, int numPMTPurchased) {
 		Connection con = MiscMethods.establishDatabaseConnection();
-		PreparedStatement ps1, ps2;
-		int numOfStamps = 0;
-		int numOfAdditionalFreePMT = 0;
-		MiscMethods.removeFreePearlMilkTeaUsed(userId, numberOfFreePearlMilkTeaUsed);
-
+		PreparedStatement ps;
 		try {
-			ps1 = con.prepareStatement("SELECT stamp_card_counter FROM " + ServerConstants.DB_USER_TABLE + " WHERE user_id = ?");
-			ps1.setInt(1, userId);
-			ResultSet rs = ps1.executeQuery();
-			if(rs.next()) {
-				numOfStamps = rs.getInt(1);
-			}
+			ps = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_TABLE + 
+					" SET number_pmt_bought_counter = number_pmt_bought_counter + ? " +
+					"WHERE user_id = ?");
+			ps.setInt(1, numPMTPurchased);
+			ps.setInt(2, userId);
+			ps.executeUpdate();
+			return true;
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
-		//figuring out new number of stamps and "completed" stamp cards
-		int updatedNumOfStamps = numOfStamps + numOfPMTOrdered - numberOfFreePearlMilkTeaUsed;
-		if(updatedNumOfStamps > ServerConstants.STAMP_CARD_NUMBER - 1) {
-			numOfAdditionalFreePMT = updatedNumOfStamps/ServerConstants.STAMP_CARD_NUMBER;
-			MiscMethods.giveFreePearlMilkTea(userId, numOfAdditionalFreePMT);
-			updatedNumOfStamps = updatedNumOfStamps%ServerConstants.STAMP_CARD_NUMBER;
-		}
-		//save their new # of stamps
-		try {
-			ps2 = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_TABLE + " SET stamp_card_counter = ? WHERE user_id = ? ");
-			ps2.setInt(1, updatedNumOfStamps);
-			ps2.setInt(2, userId);
-			ps2.executeUpdate();
-		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
-			e.printStackTrace();
-		}
-		return updatedNumOfStamps;
+		return false;
 	}
+	
+	/*not in first release */
+
+	//	private int incrementStampCardAndFreePMTCounter(int userId, int numOfPMTOrdered, int numberOfFreePearlMilkTeaUsed) {
+	//		Connection con = MiscMethods.establishDatabaseConnection();
+	//		PreparedStatement ps1, ps2;
+	//		int numOfStamps = 0;
+	//		int numOfAdditionalFreePMT = 0;
+	//		MiscMethods.removeFreePearlMilkTeaUsed(userId, numberOfFreePearlMilkTeaUsed);
+	//
+	//		try {
+	//			ps1 = con.prepareStatement("SELECT stamp_card_counter FROM " + ServerConstants.DB_USER_TABLE + " WHERE user_id = ?");
+	//			ps1.setInt(1, userId);
+	//			ResultSet rs = ps1.executeQuery();
+	//			if(rs.next()) {
+	//				numOfStamps = rs.getInt(1);
+	//			}
+	//		} catch (SQLException e) {
+	//			causeOfFailure = e.getLocalizedMessage();
+	//			e.printStackTrace();
+	//		}
+	//		//figuring out new number of stamps and "completed" stamp cards
+	//		int updatedNumOfStamps = numOfStamps + numOfPMTOrdered - numberOfFreePearlMilkTeaUsed;
+	//		if(updatedNumOfStamps > ServerConstants.STAMP_CARD_NUMBER - 1) {
+	//			numOfAdditionalFreePMT = updatedNumOfStamps/ServerConstants.STAMP_CARD_NUMBER;
+	//			MiscMethods.giveFreePearlMilkTea(userId, numOfAdditionalFreePMT);
+	//			updatedNumOfStamps = updatedNumOfStamps%ServerConstants.STAMP_CARD_NUMBER;
+	//		}
+	//		//save their new # of stamps
+	//		try {
+	//			ps2 = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_TABLE + " SET stamp_card_counter = ? WHERE user_id = ? ");
+	//			ps2.setInt(1, updatedNumOfStamps);
+	//			ps2.setInt(2, userId);
+	//			ps2.executeUpdate();
+	//		} catch (SQLException e) {
+	//			causeOfFailure = e.getLocalizedMessage();
+	//			e.printStackTrace();
+	//		}
+	//		return updatedNumOfStamps;
+	//	}
 
 
 }

@@ -24,52 +24,31 @@ import com.sun.net.httpserver.HttpHandler;
 @WebServlet (value="/defaultaddress", name="Default-Address-Servlet")
 public class DefaultAddressServlet extends HttpServlet{
 
-	private String causeOfFailure;
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
-
+		int userId = 0;
+		String defaultDeliveryAddress = "";
+		JSONObject jsonResObj = new JSONObject();
+		
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
 			if(inFromClient != null) {
 				jsonReqString = inFromClient.readLine();
 			}
 		}catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JSONObject jsonObj = null;
+		JSONObject jsonObj = new JSONObject(jsonReqString);
 
-		//		try {
-		jsonObj = new JSONObject(jsonReqString);
-		//		} catch (JSONException e1) {
-		//			// TODO Auto-generated catch block
-		//			e1.printStackTrace();
-		//		}
-
-		int userId = 0;
-		String defaultDeliveryAddress = "";
-		//		try {
 		userId = jsonObj.getInt("user_id");
 		defaultDeliveryAddress = jsonObj.getString("default_delivery_address");
-		//		} catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
 
-		JSONObject jsonResObj = new JSONObject();
-		//	try {
 		if(setDefaultDeliveryAddress(userId, defaultDeliveryAddress)) {
 			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.DEFAULT_ADDRESS_SET_SUCCESS);
 		}
 		else {
-			jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
 		}
-		//		}
-		//		catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
 
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
@@ -99,7 +78,6 @@ public class DefaultAddressServlet extends HttpServlet{
 			ps.executeUpdate();
 			return true;
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 		return false;

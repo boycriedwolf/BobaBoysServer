@@ -31,13 +31,14 @@ import com.twilio.sdk.resource.instance.Sms;
 @WebServlet (value="/notifyviasms", name="Notify-Via-SMS-Servlet")
 public class NotifyViaSMSServlet extends HttpServlet{
 
-	private String causeOfFailure;
 	private static final String ACCOUNT_SID = "ACe65b5376193513afd04d16decdc82f06";
 	private static final String AUTH_TOKEN = "996cdd9d9764576b3ca7a36b7a89c1a3";
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
-
+		int clientUserId = 0;
+		int orderId = 0;
+	
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
 			if(inFromClient != null) {
@@ -47,45 +48,25 @@ public class NotifyViaSMSServlet extends HttpServlet{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JSONObject jsonObj = null;
-
-		//		try {
-		jsonObj = new JSONObject(jsonReqString);
-		//		} catch (JSONException e1) {
-		//			// TODO Auto-generated catch block
-		//			e1.printStackTrace();
-		//		}
-
-		int clientUserId = 0;
-		int orderId = 0;
-		//		try {
+		JSONObject jsonObj = new JSONObject(jsonReqString);
 		clientUserId = jsonObj.getInt("client_user_id");
 		orderId = jsonObj.getInt("order_id");
-		//		} catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-
+	
 		int customerUserId = MiscMethods.getUserIdCorrespondingToOrderId(orderId);
 		String customerName = MiscMethods.getNameCorrespondingToUserId(customerUserId);
 		String phoneNumber = MiscMethods.getPhoneNumberCorrespondingToUserId(customerUserId);
 		JSONObject jsonResObj = new JSONObject();
-		//		try {
+		
 		if(MiscMethods.checkIfAdmin(clientUserId)) {
 			if(sendDeliveryRelatedSMS(phoneNumber, customerName)) {
 				jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.SMS_SEND_SUCCESS);
 			}
-			else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
 		}
 		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.CLIENT_IS_NOT_ADMIN);
-		//		}
-		//		catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
+
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
-
 
 		response.setBufferSize(jsonResString.length());  //lets client know how long
 		OutputStream outputStream;
@@ -117,7 +98,6 @@ public class NotifyViaSMSServlet extends HttpServlet{
 			return true;
 		} catch (TwilioRestException e) {
 			// TODO Auto-generated catch block
-			causeOfFailure = e.getErrorMessage();
 			e.printStackTrace();
 		}
 		return false;

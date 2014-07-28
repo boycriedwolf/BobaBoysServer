@@ -39,11 +39,11 @@ import com.sun.net.httpserver.HttpHandler;
 @WebServlet (value="/addnewcreditcard", name="Add-New-Credit-Card-Servlet")
 public class AddNewCreditCardServlet extends HttpServlet{
 
-	private String causeOfFailure = "";
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
-
+		String stripeTokenString = "";
+		int userId = 0;
+		
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
 			if(inFromClient != null) {
@@ -53,38 +53,21 @@ public class AddNewCreditCardServlet extends HttpServlet{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JSONObject jsonObj = null;
+	
+		JSONObject jsonObj = new JSONObject(jsonReqString);
 
-		//		try {
-		jsonObj = new JSONObject(jsonReqString);
-		//		} catch (JSONException e1) {
-		//			// TODO Auto-generated catch block
-		//			e1.printStackTrace();
-		//		}
-
-		String stripeTokenString = "";
-		int userId = 0;
-		//		try {
 		stripeTokenString = jsonObj.getString("stripe_token");
 		userId = jsonObj.getInt("user_id");
-		//		} catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-
 		JSONObject jsonResObj = new JSONObject();
-		//		try {
+
+		
 		if(createNewCustomerCreditCard(stripeTokenString, userId) && setHasCreditCardInUserQueue(userId)) {
-			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.CUSTOMER_CREATE_SUCCESS);
+			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.CARD_ADD_SUCCESS);
 			MiscMethods.giveFreePearlMilkTea(userId, 1);
 		}
-		else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
-		//		}
-		//		catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-
+		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
+		
+		
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
 
@@ -108,30 +91,27 @@ public class AddNewCreditCardServlet extends HttpServlet{
 		Stripe.apiKey = "sk_test_CY8QQMarcq8pB4nhhQB8dZ6g";
 
 		Map<String, Object> customerParams = new HashMap<String, Object>();
-
+		Map<String, Object> updateParams = new HashMap<String, Object>();
+		
 		try {
 			Customer cu = Customer.retrieve(MiscMethods.getCustomerId(userId));
 			Token stripeToken = Token.retrieve(stripeTokenString);
+		
 			customerParams.put("card", stripeToken.getId());
 			Card newCard = cu.createCard(customerParams);
-			Map<String, Object> updateParams = new HashMap<String, Object>();
+			
 			updateParams.put("default_card", newCard.getId());
 			cu.update(updateParams);
 			return true;
 		} catch (AuthenticationException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		} catch (InvalidRequestException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		} catch (APIConnectionException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		} catch (CardException e) {
-			causeOfFailure = e.getCode();
 			e.printStackTrace();
 		} catch (APIException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		}
 		return false;
@@ -148,7 +128,6 @@ public class AddNewCreditCardServlet extends HttpServlet{
 			ps.executeUpdate();
 			return true;
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 		return false;

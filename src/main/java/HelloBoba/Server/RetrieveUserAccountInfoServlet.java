@@ -7,8 +7,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -31,8 +37,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-@WebServlet (value="/retrievecreditcards", name="Retrieve-Credit-Cards-Servlet")
-public class RetrieveCreditCardsServlet extends HttpServlet{
+@WebServlet (value="/retrieveuseraccountinfo", name="Retrieve-User-Account-Info-Servlet")
+public class RetrieveUserAccountInfoServlet extends HttpServlet{
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
@@ -53,16 +59,11 @@ public class RetrieveCreditCardsServlet extends HttpServlet{
 		userId = jsonObj.getInt("user_id");
 
 		JSONObject jsonResObj = new JSONObject();
-		JSONArray jsonCards = new JSONArray();
-		String userCustomerId = MiscMethods.getCustomerId(userId);
+		Map<String, String> map = new HashMap<String, String>();
 
-		jsonCards = retrieveCustomerCreditCards(userCustomerId);
-		try {
-			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.RETRIEVE_CARDS_SUCCESS);
-			jsonResObj.put("cards", jsonCards);
-		}
-		catch (JSONException e) {
-			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
+		map = retrieveUserInfo(userId);
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			jsonResObj.put(entry.getKey(), entry.getValue());
 		}
 
 		response.setContentType("application/json");
@@ -81,46 +82,24 @@ public class RetrieveCreditCardsServlet extends HttpServlet{
 
 	}
 
-	private JSONArray retrieveCustomerCreditCards(String userCustomerId) {
-		Stripe.apiKey = "sk_test_CY8QQMarcq8pB4nhhQB8dZ6g";	
-		Customer cu;
-		JSONArray jsonCards = new JSONArray();
+	private Map<String, String> retrieveUserInfo(int userId) {
+		Connection con = MiscMethods.establishDatabaseConnection();
+		PreparedStatement ps;
+		String name = null;
+		Map<String, String> userInfoMap = new HashMap<String, String>();
 		try {
-			cu = Customer.retrieve(userCustomerId);
-			String defaultCardId = cu.getDefaultCard();
-			CustomerCardCollection listOfCards = cu.getCards();
-			List<Card> customerCardsList = listOfCards.getData();
-			Iterator<Card> it = customerCardsList.iterator();
-			while(it.hasNext()) {
-				Card card = it.next();
-
-				JSONObject jsonCard = new JSONObject();
-				jsonCard.put("last4", card.getLast4());
-				jsonCard.put("exp_month", card.getExpMonth());
-				jsonCard.put("exp_year", card.getExpYear());
-				if(card.getId().equals(defaultCardId)) {
-					jsonCard.put("default_card", true);
-				}
-				else jsonCard.put("default_card", false);
-				jsonCards.put(jsonCard);
+			ps = con.prepareStatement("SELECT name FROM " + ServerConstants.DB_USER_TABLE + " WHERE user_id = ?");
+			ps.setInt(1, userId);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				name = rs.getString(1);
+				userInfoMap.put("name", name);
 			}
-			return jsonCards;
-		} catch (AuthenticationException e) {
-			e.printStackTrace();
-		} catch (InvalidRequestException e) {
-			e.printStackTrace();
-		} catch (APIConnectionException e) {
-			e.printStackTrace();
-		} catch (CardException e) {
-			e.printStackTrace();
-		} catch (APIException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-		return jsonCards;
-
+		return userInfoMap;
 	}
-
 
 
 }

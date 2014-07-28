@@ -25,7 +25,9 @@ public class CheckoutOrderServlet extends HttpServlet{
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
-
+		int userId = 0;
+		int totalPrice = 0;
+		
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
 			if(inFromClient != null) {
@@ -35,33 +37,18 @@ public class CheckoutOrderServlet extends HttpServlet{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JSONObject jsonObj = null;
-		JSONObject jsonOrderObj = null;
-
-		//		try {
-		jsonObj = new JSONObject(jsonReqString);
-		//		} catch (JSONException e1) {
-		//			// TODO Auto-generated catch block
-		//			e1.printStackTrace();
-		//		}
-
-		int userId = 0;
-		int totalPrice = 0;
-		//		try {
-		jsonOrderObj = jsonObj.getJSONObject("order");
+		
+		JSONObject jsonObj = new JSONObject(jsonReqString);
+		JSONObject jsonOrderObj = jsonObj.getJSONObject("order");
 		userId = jsonObj.getInt("user_id");
-		//		} catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-
+		
 		totalPrice = calculatePriceOfOrder(jsonOrderObj);
 		int numFreePMT = MiscMethods.numberOfFreePearlMilkTeaUserHas(userId);
 		int numPMTInOrder = MiscMethods.numberOfPearlMilkTeaInOrder(jsonOrderObj);
 		int newTotalPrice = newTotalPrice(totalPrice, numFreePMT, numPMTInOrder);
 
 		JSONObject jsonResObj = new JSONObject();
-		//		try {
+
 		if(numFreePMT != 0) {
 			if(numFreePMT >= numPMTInOrder) {
 				jsonResObj.put(ServerConstants.NUM_FREE_PMT, numPMTInOrder);
@@ -77,11 +64,6 @@ public class CheckoutOrderServlet extends HttpServlet{
 		else {
 			jsonResObj.put(ServerConstants.NUM_FREE_PMT, numFreePMT);
 		}
-		//		}
-		//		catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
 
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
@@ -112,16 +94,11 @@ public class CheckoutOrderServlet extends HttpServlet{
 		Iterator<?> keys = jsonOrder.keys();
 		int menuId = 0;
 		int totalPrice = 0;
-		//		try {
 		while( keys.hasNext() ){
 			String key = (String)keys.next();
 			menuId = Integer.parseInt(key);
 			totalPrice += MiscMethods.calculatePriceOfMenuId(menuId)*jsonOrder.getInt(key);
 		}
-		//		} catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
 		return totalPrice;
 	}
 

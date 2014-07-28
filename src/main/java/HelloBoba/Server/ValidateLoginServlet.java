@@ -26,11 +26,13 @@ import com.sun.net.httpserver.HttpHandler;
 @WebServlet (value="/validatelogin", name="Validate-Login-Servlet")
 public class ValidateLoginServlet extends HttpServlet{
 
-	public String causeOfFailure;
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
-
+		String email = "";
+		String password = "";
+		JSONObject jsonResObj = new JSONObject();
+		int userId, inQueue;
+		
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
 			if(inFromClient != null) {
@@ -40,63 +42,38 @@ public class ValidateLoginServlet extends HttpServlet{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JSONObject jsonObj = null;
+		JSONObject jsonObj = new JSONObject(jsonReqString);
 
-//		try {
-			jsonObj = new JSONObject(jsonReqString);
-//		} catch (JSONException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+		email = jsonObj.getString("email");
+		password = jsonObj.getString("password");
 
-		String email = "";
-		String password = "";
-
-//		try {
-			email = jsonObj.getString("email");
-			password = jsonObj.getString("password");
-//		} catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
-		JSONObject jsonResObj = new JSONObject();
 		List<Integer> returnList = validateLogin(email, password);
 
-		int userId, inQueue;
-//		try {
-			if(checkIfEmailInDB(email)) {
-				if(!returnList.isEmpty()) {
-					userId = returnList.get(0);
-					inQueue = returnList.get(1);
-					jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.LOGIN_SUCCESS);
-					jsonResObj.put(ServerConstants.USER_ID, userId);
-					jsonResObj.put(ServerConstants.USER_IN_QUEUE, inQueue); //set as 0 or 1, 0 means not in queue
+		if(checkIfEmailInDB(email)) {
+			if(!returnList.isEmpty()) {
+				userId = returnList.get(0);
+				inQueue = returnList.get(1);
+				jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.LOGIN_SUCCESS);
+				jsonResObj.put(ServerConstants.USER_ID, userId);
+				jsonResObj.put(ServerConstants.USER_IN_QUEUE, inQueue); //set as 0 or 1, 0 means not in queue
 
-				}
-				else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
 			}
-			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.EMAIL_DOESNT_EXIST);
-//		}
-//		catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
+		}
+		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.EMAIL_DOESNT_EXIST);
+		response.setContentType("application/json");
+		String jsonResString = jsonResObj.toString();
 
-			response.setContentType("application/json");
-			String jsonResString = jsonResObj.toString();
-
-			response.setBufferSize(jsonResString.length());  //lets client know how long
-			OutputStream outputStream;
-			try {
-				outputStream = response.getOutputStream();
-				outputStream.write(jsonResString.getBytes());
-				outputStream.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+		response.setBufferSize(jsonResString.length());  //lets client know how long
+		OutputStream outputStream;
+		try {
+			outputStream = response.getOutputStream();
+			outputStream.write(jsonResString.getBytes());
+			outputStream.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
@@ -112,7 +89,6 @@ public class ValidateLoginServlet extends HttpServlet{
 				return true;
 			}
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 		return false;
@@ -140,10 +116,9 @@ public class ValidateLoginServlet extends HttpServlet{
 				returnList.add(inQueue);
 				return returnList;
 			}
-			else causeOfFailure = ServerConstants.INCORRECT_PASSWORD;
+
 
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 		return returnList;

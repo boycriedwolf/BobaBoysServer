@@ -33,7 +33,6 @@ import com.twilio.sdk.resource.instance.Sms;
 @WebServlet (value="/updatequeue", name="Update-Queue-Servlet")
 public class UpdateQueueServlet extends HttpServlet{
 
-	private String causeOfFailure;
 	private static final String ACCOUNT_SID = "ACe65b5376193513afd04d16decdc82f06";
 	private static final String AUTH_TOKEN = "996cdd9d9764576b3ca7a36b7a89c1a3";
 	private int numberUsersAccepted;
@@ -41,6 +40,8 @@ public class UpdateQueueServlet extends HttpServlet{
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
+		int clientUserId = 0;
+		int numberToAccept = 0;
 
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
@@ -51,44 +52,26 @@ public class UpdateQueueServlet extends HttpServlet{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JSONObject jsonObj = null;
+		JSONObject jsonObj = new JSONObject(jsonReqString);
 
-		//		try {
-		jsonObj = new JSONObject(jsonReqString);
-		//		} catch (JSONException e1) {
-		//			// TODO Auto-generated catch block
-		//			e1.printStackTrace();
-		//		}
-		int clientUserId = 0;
-		int numberToAccept = 0;
-		//		try {
 		clientUserId = jsonObj.getInt("client_user_id");
 		numberToAccept = jsonObj.getInt("number_to_accept"); 
 
-		//		} catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
 		JSONObject jsonResObj = new JSONObject();
 
 		numberTextsSent = 0;
 		numberUsersAccepted = 0;
-		//		try {
+
 		if(MiscMethods.checkIfAdmin(clientUserId)) {
 			if(updateQueue(numberToAccept)) {
-				jsonResObj.put(ServerConstants.REQUEST_STATUS, true);
+				jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.UPDATE_QUEUE_SUCCESS);
 				jsonResObj.put(ServerConstants.NUM_ACCEPTED, numberUsersAccepted);
 				jsonResObj.put(ServerConstants.NUM_TEXTS_SENT, numberTextsSent);
 			}
-			else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
 		}
 
 		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.CLIENT_IS_NOT_ADMIN);
-		//		}
-		//		catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
 
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
@@ -192,7 +175,6 @@ public class UpdateQueueServlet extends HttpServlet{
 				return false;
 			}
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 		return false;
@@ -215,7 +197,6 @@ public class UpdateQueueServlet extends HttpServlet{
 			return true;
 		} catch (TwilioRestException e) {
 			// TODO Auto-generated catch block
-			causeOfFailure = e.getErrorMessage();
 			e.printStackTrace();
 		}
 		return false;

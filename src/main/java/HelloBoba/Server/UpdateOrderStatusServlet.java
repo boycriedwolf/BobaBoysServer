@@ -30,10 +30,15 @@ import com.sun.net.httpserver.HttpHandler;
 @WebServlet (value="/updateorderstatus", name="Update-Order-Status-Servlet")
 public class UpdateOrderStatusServlet extends HttpServlet{
 
-	private String causeOfFailure = "";
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
+		JSONArray ordersUpdated;
+		int clientUserId = 0;
+		int numCompleted;
+		Map<Integer, String> updatedOrdersMap = new HashMap<Integer, String>();
+		int orderId = 0;
+		String status = "";
+		JSONObject jsonResObj = new JSONObject();
 
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
@@ -44,24 +49,12 @@ public class UpdateOrderStatusServlet extends HttpServlet{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JSONObject jsonObj = null;
+		JSONObject jsonObj = new JSONObject(jsonReqString);
 
-		//		try {
-		jsonObj = new JSONObject(jsonReqString);
-		//		} catch (JSONException e1) {
-		//			// TODO Auto-generated catch block
-		//			e1.printStackTrace();
-		//		}
-		JSONArray ordersUpdated;
-		int clientUserId = 0;
-		int numCompleted;
-		Map<Integer, String> updatedOrdersMap = new HashMap<Integer, String>();
-		int orderId = 0;
-		String status = "";
-		//		try {
 		clientUserId = jsonObj.getInt("client_user_id");
 		ordersUpdated = jsonObj.getJSONArray("orders_completed");
 		numCompleted = ordersUpdated.length(); 
+
 		for(int i=0; i<numCompleted; i++) {
 			JSONObject json = new JSONObject();
 			json = ordersUpdated.getJSONObject(i);
@@ -69,25 +62,15 @@ public class UpdateOrderStatusServlet extends HttpServlet{
 			status = json.getString("status");
 			updatedOrdersMap.put(orderId, status);
 		}
-		//		} catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-		JSONObject jsonResObj = new JSONObject();
 
-		//		try {
+
 		if(MiscMethods.checkIfAdmin(clientUserId)) {
 			if(removeFromCurrentOrdersAndSaveToLogs(updatedOrdersMap)) {
-				jsonResObj.put(ServerConstants.REQUEST_STATUS, true);	
+				jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.REMOVE_FROM_CURRENT_ORDERS_AND_UPDATE_LOGS_SUCCESS);	
 			}
-			else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
 		}
 		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.CLIENT_IS_NOT_ADMIN);
-		//		}
-		//		catch (JSONException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
 
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
@@ -155,12 +138,14 @@ public class UpdateOrderStatusServlet extends HttpServlet{
 					ResultSet rs = ps3.executeQuery();
 					if(rs.next()) {
 						int userId = rs.getInt(1);
-						if(removeStamps(userId, entry.getKey())) {
+						//						if(removeStamps(userId, entry.getKey())) {
+						if(decrementPMTPurchasedCounter(userId, entry.getKey())) {
 							ps4 = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_TABLE + 
 									" SET failed_to_pay_counter = failed_to_pay_counter + 1 WHERE user_id = ?");
 							ps4.setInt(1, userId);
 							ps4.executeUpdate();
 						}
+						//}
 					}
 				}
 			}
@@ -177,19 +162,17 @@ public class UpdateOrderStatusServlet extends HttpServlet{
 			ps7.executeBatch();
 			return true;
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		} 
 		return false;
 	}
 
-	public boolean removeStamps(int userId, int orderNumber) {
+	private boolean decrementPMTPurchasedCounter(int userId, int orderNumber) {
 		Connection con = MiscMethods.establishDatabaseConnection();
 		PreparedStatement ps1 = null;
 		PreparedStatement ps2 = null;
 		PreparedStatement ps3 = null;
-		int numberOfStampsReceived = 0;
-		int newNumberOfStamps = 0;
+		int numberOfPMTIncremented = 0;
 		try {
 			ps1 = con.prepareStatement("SELECT quantity FROM " + 
 					ServerConstants.DB_CURRENT_ORDER_TABLE + " WHERE order_id = ? AND menu_id = ?");
@@ -197,32 +180,64 @@ public class UpdateOrderStatusServlet extends HttpServlet{
 			ps1.setInt(2, 1);
 			ResultSet rs = ps1.executeQuery();
 			if(rs.next()) {
-				numberOfStampsReceived = rs.getInt(1);
+				numberOfPMTIncremented = rs.getInt(1);
 			}
-			int numOfStamps = MiscMethods.numberOfStampsUserHas(userId);
-			if(numOfStamps >= numberOfStampsReceived) {
-				newNumberOfStamps = numOfStamps - numberOfStampsReceived;
-			}
-			else {
-				newNumberOfStamps = numOfStamps + 10 - numberOfStampsReceived;
-				ps3 = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_TABLE + 
-						" SET free_pearl_milk_tea_credits_counter = " +
-						"free_pearl_milk_tea_credits_counter - 1 WHERE user_id = ?");
-				ps3.setInt(1, userId);
-				ps3.executeUpdate();
-			}
+
 			ps2 = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_TABLE 
-					+ " SET stamp_card_counter = ? WHERE user_id = ?");
-			ps2.setInt(1, newNumberOfStamps);
+					+ " SET number_pmt_bought_counter = number_pmt_bought_counter - ? WHERE user_id = ?");
+			ps2.setInt(1, numberOfPMTIncremented);
 			ps2.setInt(2, userId);
 			ps2.executeUpdate();
 			return true;
 		} catch (SQLException e) {
-			causeOfFailure = e.getMessage();
 			e.printStackTrace();
 		}
 		return false;
 	}
+
+
+	/* not in first release */
+
+	//		private boolean removeStamps(int userId, int orderNumber) {
+	//			Connection con = MiscMethods.establishDatabaseConnection();
+	//			PreparedStatement ps1 = null;
+	//			PreparedStatement ps2 = null;
+	//			PreparedStatement ps3 = null;
+	//			int numberOfStampsReceived = 0;
+	//			int newNumberOfStamps = 0;
+	//			try {
+	//				ps1 = con.prepareStatement("SELECT quantity FROM " + 
+	//						ServerConstants.DB_CURRENT_ORDER_TABLE + " WHERE order_id = ? AND menu_id = ?");
+	//				ps1.setInt(1, orderNumber);
+	//				ps1.setInt(2, 1);
+	//				ResultSet rs = ps1.executeQuery();
+	//				if(rs.next()) {
+	//					numberOfStampsReceived = rs.getInt(1);
+	//				}
+	//				int numOfStamps = MiscMethods.numberOfStampsUserHas(userId);
+	//				if(numOfStamps >= numberOfStampsReceived) {
+	//					newNumberOfStamps = numOfStamps - numberOfStampsReceived;
+	//				}
+	//				else {
+	//					newNumberOfStamps = numOfStamps + 10 - numberOfStampsReceived;
+	//					ps3 = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_TABLE + 
+	//							" SET free_pearl_milk_tea_credits_counter = " +
+	//							"free_pearl_milk_tea_credits_counter - 1 WHERE user_id = ?");
+	//					ps3.setInt(1, userId);
+	//					ps3.executeUpdate();
+	//				}
+	//				ps2 = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_TABLE 
+	//						+ " SET stamp_card_counter = ? WHERE user_id = ?");
+	//				ps2.setInt(1, newNumberOfStamps);
+	//				ps2.setInt(2, userId);
+	//				ps2.executeUpdate();
+	//				return true;
+	//			} catch (SQLException e) {
+	//				causeOfFailure = e.getMessage();
+	//				e.printStackTrace();
+	//			}
+	//			return false;
+	//		}
 
 
 }

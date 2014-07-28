@@ -26,8 +26,6 @@ import com.sun.net.httpserver.HttpHandler;
 @WebServlet (value="/accountcreationviafbconnect", name="Account-Creation-Via-FB-Connect-Servlet")
 public class AccountCreationViaFBConnectServlet extends HttpServlet{
 
-	private String causeOfFailure = "";
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
 
@@ -70,7 +68,7 @@ public class AccountCreationViaFBConnectServlet extends HttpServlet{
 			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.LOGIN_CREATE_SUCCESS);
 			jsonResObj.put(ServerConstants.USER_ID, userId);
 		}
-		else jsonResObj.put(ServerConstants.REQUEST_STATUS, causeOfFailure);
+		else jsonResObj.put(ServerConstants.REQUEST_STATUS, false);
 		//		}
 		//		catch (JSONException e) {
 		//			// TODO Auto-generated catch block
@@ -125,7 +123,6 @@ public class AccountCreationViaFBConnectServlet extends HttpServlet{
 			ps2.setInt(4, 1);
 			ps2.executeUpdate();
 		} catch (SQLException e) {
-			causeOfFailure = e.getLocalizedMessage();
 			e.printStackTrace();
 		}
 		return userId;
