@@ -46,8 +46,7 @@ public class ServerConstants {
 	public static String SAVE_ORDER_FAIL = "save_order_fail";
 	public static String SAVE_ORDER_DETAILS_FAIL = "save_order_details_fail";
 	public static String GENERIC_PURCHASE_ORDER_FAIL = "generic_purchase_order_fail";
-	public static String AFFILIATION_AND_ADDRESS_RETRIEVE_SUCCESS = "affiliation_and_address_retrieve_success";
-	public static String RETRIEVE_AFFILIATION_FAIL = "retrieve_affiliation_fail";
+	public static String ADDRESS_RETRIEVE_SUCCESS = "address_retrieve_success";
 	public static String RETRIEVE_ADDRESS_FAIL = "retrieve_address_fail";
 	public static String RETRIEVE_CARDS_SUCCESS = "retrieve_cards_success";
 	public static String SET_NEW_DEFAULT_CREDIT_CARD_SUCCESS = "set_new_credit_card_success";
