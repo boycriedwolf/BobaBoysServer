@@ -42,7 +42,6 @@ public class PurchaseOrderServlet extends HttpServlet{
 		int userId = 0;
 		int totalPrice = 0;
 		int numberOfFreePearlMilkTeaUsed = 0;
-		boolean futureOrder;
 		boolean payingWithCreditCard = false;
 		String deliveryLocation = "";
 		int updatedNumOfStamps = 0;
@@ -64,7 +63,6 @@ public class PurchaseOrderServlet extends HttpServlet{
 		userId = jsonObj.getInt("user_id");
 		totalPrice = jsonObj.getInt("total_price");
 		payingWithCreditCard = jsonObj.getBoolean("paying_with_credit_card");
-		futureOrder = jsonObj.getBoolean("future_order");
 		
 		
 		numberOfFreePearlMilkTeaUsed = jsonObj.getInt("number_of_free_pearl_milk_tea_used");
