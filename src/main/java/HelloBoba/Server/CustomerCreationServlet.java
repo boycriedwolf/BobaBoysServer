@@ -55,7 +55,7 @@ public class CustomerCreationServlet extends HttpServlet{
 		userId = jsonObj.getInt("user_id");
 
 		JSONObject jsonResObj = new JSONObject();
-		if(customerCreation(stripeTokenString, userId) && setHasCreditCardInUserQueue(userId)) {
+		if(customerCreation(stripeTokenString, userId)) {
 			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.CUSTOMER_CREATE_SUCCESS);
 			MiscMethods.giveFreePearlMilkTea(userId, 1);
 		}
@@ -131,20 +131,20 @@ public class CustomerCreationServlet extends HttpServlet{
 		return false;
 	}
 
-	private boolean setHasCreditCardInUserQueue(int userId) {
-		Connection con = MiscMethods.establishDatabaseConnection();
-		try {
-			PreparedStatement ps = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_QUEUE_TABLE + 
-					" SET has_credit_card = ? WHERE user_id = ?");
-			ps.setInt(1, 1);
-			ps.setInt(2, userId);
-			ps.executeUpdate();
-			return true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
+//	private boolean setHasCreditCardInUserQueue(int userId) {
+//		Connection con = MiscMethods.establishDatabaseConnection();
+//		try {
+//			PreparedStatement ps = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_QUEUE_TABLE + 
+//					" SET has_credit_card = ? WHERE user_id = ?");
+//			ps.setInt(1, 1);
+//			ps.setInt(2, userId);
+//			ps.executeUpdate();
+//			return true;
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//		return false;
+//	}
 
 	private String getUserEmail(int userId) {
 		Connection con = MiscMethods.establishDatabaseConnection();
