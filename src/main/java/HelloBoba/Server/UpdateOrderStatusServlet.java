@@ -93,10 +93,10 @@ public class UpdateOrderStatusServlet extends HttpServlet{
 		Connection con = MiscMethods.establishDatabaseConnection();
 		String sql1 = "INSERT INTO " + ServerConstants.
 				DB_ORDER_HISTORY_DETAILS_TABLE +  "(order_id, user_id," +
-				" price_of_order, time_order_placed, time_to_deliver," +
+				" price_of_order, time_order_placed, " +
 				" paying_with_credit_card, delivery_location, " +
 				"number_of_free_pearl_milk_tea_used) SELECT order_id, user_id," +
-				" price_of_order, time_order_placed, time_to_deliver," +
+				" price_of_order, time_order_placed, " +
 				" paying_with_credit_card, delivery_location, " +
 				"number_of_free_pearl_milk_tea_used FROM " +
 				ServerConstants.DB_CURRENT_ORDER_DETAILS_TABLE + " " +

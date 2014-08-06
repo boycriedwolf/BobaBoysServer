@@ -95,32 +95,25 @@ public class AccountCreationServlet extends HttpServlet{
 		int userId = 0;
 		try {
 			String sql = "INSERT INTO " + ServerConstants.DB_USER_TABLE + 
-					"(name, user_email, user_password, phone_number, admin_account, in_queue," +
+					"(name, user_email, user_password, phone_number, admin_account," +
 					" failed_to_pay_counter, free_pearl_milk_tea_credits_counter, " +
-					"stamp_card_counter, number_pmt_bought_counter) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					"stamp_card_counter, number_pmt_bought_counter) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			ps1 = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			ps1.setString(1, name);
 			ps1.setString(2, email);
 			ps1.setString(3, password);
 			ps1.setString(4, phoneNumber);
 			ps1.setInt(5, 0);
-			ps1.setInt(6, 1);
+			ps1.setInt(6, 0);
 			ps1.setInt(7, 0);
 			ps1.setInt(8, 0);
 			ps1.setInt(9, 0);
-			ps1.setInt(10, 0);
 			ps1.executeUpdate();
 			ResultSet rs = ps1.getGeneratedKeys();
 			if(rs.next()) {
 				userId = rs.getInt(1);
 			}
-			ps2 = con.prepareStatement("INSERT INTO " + ServerConstants.DB_USER_QUEUE_TABLE + 
-					"(user_id, has_credit_card, is_affiliated, fb_connect) VALUES(?, ?, ?, ?)");
-			ps2.setInt(1, userId);
-			ps2.setInt(2, 0);
-			ps2.setInt(3, 0);
-			ps2.setInt(4, 0);
-			ps2.executeUpdate();
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

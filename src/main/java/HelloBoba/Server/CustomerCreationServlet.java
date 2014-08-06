@@ -11,6 +11,7 @@ import java.io.OutputStream;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.HashMap;
@@ -39,7 +40,7 @@ public class CustomerCreationServlet extends HttpServlet{
 		String jsonReqString = "";
 		String stripeTokenString = "";
 		int userId = 0;
-		
+
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
 			if(inFromClient != null) {
@@ -59,7 +60,7 @@ public class CustomerCreationServlet extends HttpServlet{
 			MiscMethods.giveFreePearlMilkTea(userId, 1);
 		}
 		else jsonResObj.put(ServerConstants.REQUEST_STATUS, false);
-		
+
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
 
@@ -85,9 +86,15 @@ public class CustomerCreationServlet extends HttpServlet{
 		Customer customer;
 		String customerId = "";
 
+		String email = getUserEmail(userId);
+
+
 		try {
 			Token stripeToken = Token.retrieve(stripeTokenString);
 			customerParams.put("card", stripeToken.getId());
+			if(!email.equalsIgnoreCase("error")) {
+				customerParams.put("email", email);
+			}
 			customer = Customer.create(customerParams);		
 			customerId = customer.getId();	
 		} catch (AuthenticationException e) {
@@ -139,6 +146,21 @@ public class CustomerCreationServlet extends HttpServlet{
 		return false;
 	}
 
+	private String getUserEmail(int userId) {
+		Connection con = MiscMethods.establishDatabaseConnection();
+		String email = "error";
+		try {
+			PreparedStatement ps = con.prepareStatement("SELECT user_email FROM user WHERE user_id = ?");
+			ps.setInt(1, userId);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				email = rs.getString("user_email");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return email;
+	}
 
 
 }

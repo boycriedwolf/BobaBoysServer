@@ -23,7 +23,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 @WebServlet (value="/retrieveaffiliationanddefaultaddress", name="Retrieve-Affiliation-And-Default-Address-Servlet")
-public class RetrieveAffiliationAndDefaultAddressServlet extends HttpServlet{
+public class RetrieveDefaultAddressServlet extends HttpServlet{
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
@@ -48,22 +48,22 @@ public class RetrieveAffiliationAndDefaultAddressServlet extends HttpServlet{
 		JSONObject jsonResObj = new JSONObject();
 
 		defaultDeliveryAddress = retrieveDefaultAddress(userId);
-		affiliation = retrieveAffiliation(userId);
-		if(!defaultString.equalsIgnoreCase(affiliation)) {
+//		affiliation = retrieveAffiliation(userId);
+//		if(!defaultString.equalsIgnoreCase(affiliation)) {
 			if(!defaultString.equalsIgnoreCase(defaultDeliveryAddress)) {
-				if(affiliation != null) {
-					jsonResObj.put("affiliation", affiliation);
-				}
-				else jsonResObj.put("affiliation", ServerConstants.NO_AFFILIATION);
+//				if(affiliation != null) {
+//					jsonResObj.put("affiliation", affiliation);
+//				}
+//				else jsonResObj.put("affiliation", ServerConstants.NO_AFFILIATION);
 				if(defaultDeliveryAddress != null) {
 					jsonResObj.put("default_delivery_address", defaultDeliveryAddress);
 				}
 				else jsonResObj.put("default_delivery_address", ServerConstants.NO_DEFAULT_DELIVERY_ADDRESS);
-				jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.AFFILIATION_AND_ADDRESS_RETRIEVE_SUCCESS);
+//				jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.AFFILIATION_AND_ADDRESS_RETRIEVE_SUCCESS);
 			}
 			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.RETRIEVE_ADDRESS_FAIL);
-		}
-		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.RETRIEVE_AFFILIATION_FAIL);
+//		}
+//		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.RETRIEVE_AFFILIATION_FAIL);
 
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
@@ -81,22 +81,22 @@ public class RetrieveAffiliationAndDefaultAddressServlet extends HttpServlet{
 
 	}
 
-	private String retrieveAffiliation(int userId) {
-		Connection con = MiscMethods.establishDatabaseConnection();
-		PreparedStatement ps;
-		String affiliation = null;
-		try {
-			ps = con.prepareStatement("SELECT affiliation FROM " + ServerConstants.DB_USER_TABLE + " WHERE user_id = ?");
-			ps.setInt(1, userId);
-			ResultSet rs = ps.executeQuery();
-			if(rs.next()) {
-				affiliation = rs.getString(1);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return affiliation;
-	}
+//	private String retrieveAffiliation(int userId) {
+//		Connection con = MiscMethods.establishDatabaseConnection();
+//		PreparedStatement ps;
+//		String affiliation = null;
+//		try {
+//			ps = con.prepareStatement("SELECT affiliation FROM " + ServerConstants.DB_USER_TABLE + " WHERE user_id = ?");
+//			ps.setInt(1, userId);
+//			ResultSet rs = ps.executeQuery();
+//			if(rs.next()) {
+//				affiliation = rs.getString(1);
+//			}
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//		return affiliation;
+//	}
 
 	private String retrieveDefaultAddress(int userId) {
 		Connection con = MiscMethods.establishDatabaseConnection();

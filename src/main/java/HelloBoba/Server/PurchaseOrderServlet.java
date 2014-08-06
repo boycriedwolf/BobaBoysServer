@@ -44,7 +44,6 @@ public class PurchaseOrderServlet extends HttpServlet{
 		int numberOfFreePearlMilkTeaUsed = 0;
 		boolean futureOrder;
 		boolean payingWithCreditCard = false;
-		String timeToDeliver = "";
 		String deliveryLocation = "";
 		int updatedNumOfStamps = 0;
 
@@ -67,10 +66,6 @@ public class PurchaseOrderServlet extends HttpServlet{
 		payingWithCreditCard = jsonObj.getBoolean("paying_with_credit_card");
 		futureOrder = jsonObj.getBoolean("future_order");
 		
-		if(futureOrder) {
-			timeToDeliver = jsonObj.getString("time_to_deliver");
-		}
-		else timeToDeliver = "now";
 		
 		numberOfFreePearlMilkTeaUsed = jsonObj.getInt("number_of_free_pearl_milk_tea_used");
 		deliveryLocation = jsonObj.getString("delivery_location");
@@ -88,7 +83,7 @@ public class PurchaseOrderServlet extends HttpServlet{
 		if(payingWithCreditCard) {
 			if(purchaseOrder(userId, totalPrice)) {
 				int orderNumber = saveCustomerOrderDetailsToDatabase(userId, totalPrice, 
-						timeToDeliver, 1, deliveryLocation, numberOfFreePearlMilkTeaUsed,
+						1, deliveryLocation, numberOfFreePearlMilkTeaUsed,
 						currentTime);
 				if(orderNumber != 0) {
 					if(saveCustomerOrderToDatabase(jsonOrderObj, orderNumber)) {
@@ -110,7 +105,7 @@ public class PurchaseOrderServlet extends HttpServlet{
 //			updatedNumOfStamps = incrementStampCardAndFreePMTCounter(userId, 
 //					numOfPMTOrdered, numberOfFreePearlMilkTeaUsed);				
 			int orderNumber = saveCustomerOrderDetailsToDatabase(userId, totalPrice, 
-					timeToDeliver, 0, deliveryLocation, numberOfFreePearlMilkTeaUsed,
+					0, deliveryLocation, numberOfFreePearlMilkTeaUsed,
 					currentTime);
 			if(orderNumber != 0) {
 				if(saveCustomerOrderToDatabase(jsonOrderObj, orderNumber)) {
@@ -200,7 +195,7 @@ public class PurchaseOrderServlet extends HttpServlet{
 	}
 
 	private int saveCustomerOrderDetailsToDatabase(int userId, 
-			int totalPrice, String timeToDeliver, int payingWithCreditCard,
+			int totalPrice, int payingWithCreditCard,
 			String deliveryLocation, int numFreePMT, String currentTime) {
 		Connection con = MiscMethods.establishDatabaseConnection();
 		PreparedStatement ps;
@@ -210,16 +205,15 @@ public class PurchaseOrderServlet extends HttpServlet{
 		try {
 			ps = con.prepareStatement("INSERT INTO " + 
 					ServerConstants.DB_CURRENT_ORDER_DETAILS_TABLE + " (user_id, price_of_order," +
-					" time_order_placed, time_to_deliver, paying_with_credit_card," +
+					" time_order_placed, paying_with_credit_card," +
 					" delivery_location, number_of_free_pearl_milk_tea_used) " +
-					"VALUES(?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+					"VALUES(?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			ps.setInt(1, userId);
 			ps.setInt(2, totalPrice);
 			ps.setString(3, currentTime);
-			ps.setString(4, timeToDeliver);
-			ps.setInt(5, payingWithCreditCard);
-			ps.setString(6, deliveryLocation);
-			ps.setInt(7, numFreePMT); 
+			ps.setInt(4, payingWithCreditCard);
+			ps.setString(5, deliveryLocation);
+			ps.setInt(6, numFreePMT); 
 			ps.executeUpdate();
 			ResultSet rs = ps.getGeneratedKeys();
 			if(rs.next()) {
