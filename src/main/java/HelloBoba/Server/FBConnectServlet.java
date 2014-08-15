@@ -51,7 +51,6 @@ public class FBConnectServlet extends HttpServlet{
 		JSONObject jsonResObj = new JSONObject();
 
 		if(MiscMethods.updateFBToken(userId, longLivedFBToken)) {
-			MiscMethods.setFBConnectForUserQueue(userId);
 			MiscMethods.giveFreePearlMilkTea(userId, 1);
 			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.FB_TOKEN_UPDATE_SUCCESS);
 			jsonResObj.put(ServerConstants.LONG_LIVED_FB_TOKEN, longLivedFBToken);

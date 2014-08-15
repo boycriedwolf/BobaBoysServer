@@ -28,31 +28,7 @@ public class MiscMethods {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String connectionUrl = "jdbc:mysql://helloboba.cjqc09pyraps.us-east-1.rds.amazonaws.com:3306/ebdb";
-		Connection con = null;
-		try {
-			con = DriverManager.getConnection(connectionUrl, "admin", "robashen123");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return con;
-	}
-
-	public static Connection establishTestDatabaseConnection() {
-		try {
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String connectionUrl = "jdbc:mysql://helloboba.cjqc09pyraps.us-east-1.rds.amazonaws.com:3306/test";
+		String connectionUrl = "jdbc:mysql://aaxzs4xyl36ah4.cj0ewlhitlm0.us-west-2.rds.amazonaws.com:3306/ebdb";  
 		Connection con = null;
 		try {
 			con = DriverManager.getConnection(connectionUrl, "admin", "robashen123");
@@ -331,21 +307,6 @@ public class MiscMethods {
 		return false;
 	}
 
-	public static boolean setFBConnectForUserQueue(int userId) {
-		Connection con = MiscMethods.establishDatabaseConnection();
-		PreparedStatement ps;
-		try {
-			ps = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_QUEUE_TABLE + 
-					" SET fb_connect = ? WHERE user_id = ?");
-			ps.setInt(1, 1);
-			ps.setInt(2, userId);
-			ps.executeUpdate();	
-			return true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}		
-		return false;
-	}
 
 }
 

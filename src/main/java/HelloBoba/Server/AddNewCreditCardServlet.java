@@ -61,7 +61,7 @@ public class AddNewCreditCardServlet extends HttpServlet{
 		JSONObject jsonResObj = new JSONObject();
 
 		
-		if(createNewCustomerCreditCard(stripeTokenString, userId) && setHasCreditCardInUserQueue(userId)) {
+		if(createNewCustomerCreditCard(stripeTokenString, userId)) {
 			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.CARD_ADD_SUCCESS);
 			MiscMethods.giveFreePearlMilkTea(userId, 1);
 		}
@@ -118,20 +118,6 @@ public class AddNewCreditCardServlet extends HttpServlet{
 
 	}
 
-	private boolean setHasCreditCardInUserQueue(int userId) {
-		Connection con = MiscMethods.establishDatabaseConnection();
-		try {
-			PreparedStatement ps = con.prepareStatement("UPDATE " + ServerConstants.DB_USER_QUEUE_TABLE + 
-					" SET has_credit_card = ? WHERE user_id = ?");
-			ps.setInt(1, 1);
-			ps.setInt(2, userId);
-			ps.executeUpdate();
-			return true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
 
 
 

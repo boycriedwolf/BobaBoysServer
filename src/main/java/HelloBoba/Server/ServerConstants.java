@@ -4,9 +4,12 @@ package HelloBoba.Server;
 public class ServerConstants {
 
 	
+	public static String DB_DRIVER_TABLE = "driver";
+	public static String DB_DRIVER_SCHEDULE_TABLE = "driver_schedule";
 	public static String DB_USER_TABLE = "user";
+	public static String DB_USER_ADDRESS_TABLE = "user_address";
 	public static String DB_CURRENT_ORDER_TABLE  = "current_orders";
-	public static String DB_USER_QUEUE_TABLE = "user_queue";
+	//public static String DB_USER_QUEUE_TABLE = "user_queue";
 	public static String DB_MENU_TABLE = "menu";
 	public static String DB_ORDER_HISTORY_TABLE = "order_history";
 	public static String DB_CURRENT_ORDER_DETAILS_TABLE = "current_orders_details";
@@ -53,8 +56,9 @@ public class ServerConstants {
 	public static String REMOVE_FROM_CURRENT_ORDERS_AND_UPDATE_LOGS_SUCCESS = "remove_from_current_orders_and_update_logs_success";
 	public static String UPDATE_QUEUE_SUCCESS = "update_queue_success";
 	public static String LOGIN_SUCCESS = "login_success";
-
-	
+	public static String RETRIEVE_DRIVER_SUCCESS = "retrieve_driver_success";
+	public static String DRIVER_IS_NOT_ADMIN = "driver_is_not_admin";
+	public static String DRIVER_ID = "driver_id";
 	public static String USER_ID = "user_id";
 	public static String USER_IN_QUEUE = "in_queue";
 	
