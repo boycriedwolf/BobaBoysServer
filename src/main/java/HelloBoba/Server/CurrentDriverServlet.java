@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.*;
 
 
-@WebServlet (value="/accountcreation", name="Account-Creation-Servlet")
+@WebServlet (value="/currentdriver", name="Current-Driver-Servlet")
 public class CurrentDriverServlet extends HttpServlet{
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {

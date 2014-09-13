@@ -34,7 +34,7 @@ import com.sun.net.httpserver.HttpServer;
 @WebServlet (value="/retrievecreditcards", name="Retrieve-Credit-Cards-Servlet")
 public class RetrieveCreditCardsServlet extends HttpServlet{
 
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
 		int userId = 0;
 

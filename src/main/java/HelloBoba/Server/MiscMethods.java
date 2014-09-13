@@ -29,9 +29,13 @@ public class MiscMethods {
 			e.printStackTrace();
 		}
 		String connectionUrl = "jdbc:mysql://aaxzs4xyl36ah4.cj0ewlhitlm0.us-west-2.rds.amazonaws.com:3306/ebdb";  
+		System.out.println("hihi7");
+
 		Connection con = null;
 		try {
 			con = DriverManager.getConnection(connectionUrl, "admin", "robashen123");
+			System.out.println("hihi8");
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

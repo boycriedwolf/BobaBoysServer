@@ -27,6 +27,7 @@ public class AccountCreationServlet extends HttpServlet{
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 
+		System.out.println("hihi");
 		String jsonReqString = "";
 		String name = "";
 		String email = "";
@@ -43,13 +44,13 @@ public class AccountCreationServlet extends HttpServlet{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		JSONObject jsonObj = new JSONObject(jsonReqString);
 		name = jsonObj.getString("name");
 		email = jsonObj.getString("email");
 		password = jsonObj.getString("password");
 		phoneNumber = jsonObj.getString("phone_number");
-	                  
+
 		JSONObject jsonResObj = new JSONObject();
 
 		if(checkIfValidEmail(email)) {
@@ -58,7 +59,7 @@ public class AccountCreationServlet extends HttpServlet{
 					if(checkIfPhoneNumberAlreadyInDB(phoneNumber)) {
 						userId = accountCreation(name, email, password, phoneNumber);
 						if(userId != 0) {
-							jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.LOGIN_CREATE_SUCCESS);
+							jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.ACCOUNT_CREATE_SUCCESS);
 							jsonResObj.put(ServerConstants.USER_ID, userId);
 						}
 						else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
@@ -71,6 +72,7 @@ public class AccountCreationServlet extends HttpServlet{
 			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.INVALID_PASSWORD);
 		}
 		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.INVALID_EMAIL);
+
 
 
 		response.setContentType("application/json");
@@ -113,7 +115,7 @@ public class AccountCreationServlet extends HttpServlet{
 			if(rs.next()) {
 				userId = rs.getInt(1);
 			}
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

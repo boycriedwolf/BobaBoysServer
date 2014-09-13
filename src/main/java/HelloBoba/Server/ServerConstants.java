@@ -16,7 +16,7 @@ public class ServerConstants {
 	public static String DB_ORDER_HISTORY_DETAILS_TABLE = "order_history_details";
 	
 
-	public static String LOGIN_CREATE_SUCCESS = "login_create_success";
+	public static String ACCOUNT_CREATE_SUCCESS = "account_create_success";
 	public static String AFFILIATION = "lynbrook";
 	public static String REQUEST_STATUS = "status";
 	public static String RETRIEVE_ORDER_STATUS = "orders_exist";

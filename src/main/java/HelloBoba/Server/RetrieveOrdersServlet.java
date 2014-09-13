@@ -25,7 +25,7 @@ import com.sun.net.httpserver.HttpHandler;
 @WebServlet (value="/retrieveorders", name="Retrieve-Orders-Servlet")
 public class RetrieveOrdersServlet extends HttpServlet{
 
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
 		int clientUserId = 0;
 		JSONArray jsonOrderArray = new JSONArray();

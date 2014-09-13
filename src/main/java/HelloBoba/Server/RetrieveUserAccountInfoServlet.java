@@ -40,7 +40,7 @@ import com.sun.net.httpserver.HttpServer;
 @WebServlet (value="/retrieveuseraccountinfo", name="Retrieve-User-Account-Info-Servlet")
 public class RetrieveUserAccountInfoServlet extends HttpServlet{
 
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
 		int userId = 0;
 

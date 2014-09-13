@@ -42,7 +42,7 @@ public class SetNewDefaultCreditCardServlet extends HttpServlet{
 		int expMonth = 0;
 		int expYear = 0;
 		int userId = 0;
-		
+
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
 			if(inFromClient != null) {
@@ -59,13 +59,13 @@ public class SetNewDefaultCreditCardServlet extends HttpServlet{
 		expMonth = jsonObj.getInt("exp_month");
 		expYear = jsonObj.getInt("exp_year");
 		userId = jsonObj.getInt("user_id");
-		
+
 		JSONObject jsonResObj = new JSONObject();
 		if(setNewDefaultCustomerCreditCard(userId, last4, expMonth, expYear)) {
 			jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.SET_NEW_DEFAULT_CREDIT_CARD_SUCCESS);
 		}
 		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
-		
+
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
 
@@ -83,25 +83,29 @@ public class SetNewDefaultCreditCardServlet extends HttpServlet{
 	}
 
 	/*
-	 * Adds a new credit card for Stripe customer and makes it default card
+	 * makes one of existing cards the new default
 	 */
 	private boolean setNewDefaultCustomerCreditCard(int userId, String last4, int expMonth, int expYear) {
 		Stripe.apiKey = "sk_test_CY8QQMarcq8pB4nhhQB8dZ6g";
+		boolean foundCard = false;
 
 		try {
-			Customer cu = Customer.retrieve(TestMiscMethods.getCustomerId(userId));
+			Customer cu = Customer.retrieve(MiscMethods.getCustomerId(userId));
 			Map<String, Object> updateParams = new HashMap<String, Object>();
 			CustomerCardCollection listOfCards = cu.getCards();
 			List<Card> customerCardsList = listOfCards.getData();
 			Iterator<Card> it = customerCardsList.iterator();
 			while(it.hasNext()) {
 				Card card = it.next();
-				if((card.getLast4() == last4) && (card.getExpMonth() == expMonth) && (card.getExpYear() == expYear)) {
+				if((card.getLast4().equalsIgnoreCase(last4)) && (card.getExpMonth() == expMonth) && (card.getExpYear() == expYear)) {
 					updateParams.put("default_card", card.getId());
+					foundCard = true;
 				}
 			}
-			cu.update(updateParams);
-			return true;
+			if(foundCard) {
+				cu.update(updateParams);
+				return true;
+			}
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
 		} catch (InvalidRequestException e) {

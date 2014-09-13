@@ -47,20 +47,18 @@ public class ValidateLoginServlet extends HttpServlet{
 		email = jsonObj.getString("email");
 		password = jsonObj.getString("password");
 
-		List<Integer> returnList = validateLogin(email, password);
+		boolean success = validateLogin(email, password);
 
 		if(checkIfEmailInDB(email)) {
-			if(!returnList.isEmpty()) {
-				userId = returnList.get(0);
-				inQueue = returnList.get(1);
+			if(success) {
 				jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.LOGIN_SUCCESS);
-				jsonResObj.put(ServerConstants.USER_ID, userId);
-				jsonResObj.put(ServerConstants.USER_IN_QUEUE, inQueue); //set as 0 or 1, 0 means not in queue
-
+				//jsonResObj.put(ServerConstants.USER_ID, userId);
+				
 			}
 			else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.GENERIC_FAILURE);
 		}
 		else jsonResObj.put(ServerConstants.REQUEST_STATUS, ServerConstants.EMAIL_DOESNT_EXIST);
+		
 		response.setContentType("application/json");
 		String jsonResString = jsonResObj.toString();
 
@@ -94,7 +92,7 @@ public class ValidateLoginServlet extends HttpServlet{
 		return false;
 	}
 
-	public List<Integer> validateLogin(String email, String password) {
+	public boolean validateLogin(String email, String password) {
 		Connection con = MiscMethods.establishDatabaseConnection();
 		PreparedStatement ps;
 		int userId = 0;
@@ -102,26 +100,20 @@ public class ValidateLoginServlet extends HttpServlet{
 		String databasePassword = "";
 		List<Integer> returnList = new ArrayList<Integer>();
 		try {
-			ps = con.prepareStatement("SELECT * FROM " + ServerConstants.DB_USER_TABLE + 
+			ps = con.prepareStatement("SELECT user_password FROM " + ServerConstants.DB_USER_TABLE + 
 					" WHERE user_email = ?");
 			ps.setString(1, email);
 			ResultSet result = ps.executeQuery();
 			if(result.next()) {
-				databasePassword = result.getString("user_password");
+				databasePassword = result.getString(1);
 			}
 			if(databasePassword.equals(password)) {
-				userId = result.getInt("user_id");
-				returnList.add(userId);
-				inQueue = result.getInt("in_queue");
-				returnList.add(inQueue);
-				return returnList;
+				return true;
 			}
-
-
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return returnList;
+		return false;
 	}
 
 

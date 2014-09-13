@@ -27,7 +27,7 @@ import com.sun.net.httpserver.HttpHandler;
 @WebServlet (value="/retrieveaddress", name="Retrieve-Address-Servlet")
 public class RetrieveAddressServlet extends HttpServlet{
 
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String jsonReqString = "";
 		int userId = 0;
 
