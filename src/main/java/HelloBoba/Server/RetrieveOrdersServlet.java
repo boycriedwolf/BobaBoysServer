@@ -30,7 +30,7 @@ public class RetrieveOrdersServlet extends HttpServlet{
 		int clientUserId = 0;
 		JSONArray jsonOrderArray = new JSONArray();
 		JSONObject jsonResObj = new JSONObject();
-		
+
 		try {
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(request.getInputStream()));
 			if(inFromClient != null) {
@@ -40,7 +40,7 @@ public class RetrieveOrdersServlet extends HttpServlet{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	
+
 		JSONObject jsonObj = new JSONObject(jsonReqString);
 		clientUserId = jsonObj.getInt("client_user_id");
 
@@ -70,7 +70,7 @@ public class RetrieveOrdersServlet extends HttpServlet{
 
 
 	//jsonarray holds jsonobjects with order details, each jsonobject represents one current order
-	
+
 	private JSONArray retrieveOrders() {
 		Connection con = MiscMethods.establishDatabaseConnection();
 		PreparedStatement ps;
@@ -83,23 +83,23 @@ public class RetrieveOrdersServlet extends HttpServlet{
 		String deliveryLocation = "";
 		String name;
 		JSONArray jsonOrderArray = new JSONArray();
-		
+
 		try {
-			ps = con.prepareStatement("SELECT order_id, user_id, price_of_order, " +
-					"time_order_placed, time_to_deliver, paying_with_credit_card, " +
-					"delivery_location FROM " + 
+			ps = con.prepareStatement("SELECT * FROM " + 
 					ServerConstants.DB_CURRENT_ORDER_DETAILS_TABLE);
 			ResultSet result = ps.executeQuery();
+
 			while(result.next()) {
 				JSONObject jsonOrderObject = new JSONObject();
-				orderId = result.getInt(1);
-				userId = result.getInt(2);
+				orderId = result.getInt("order_id");
+				userId = result.getInt("user_id");
+
 				name = MiscMethods.getNameCorrespondingToUserId(userId);
-				priceOfOrder = result.getInt(3); //cents		
-				timeOrderPlaced = result.getString(4);
-				timeToDeliver = result.getString(5);
-				payingWithCreditCard = result.getInt(6);
-				deliveryLocation = result.getString(7);
+				priceOfOrder = result.getInt("price_of_order"); //cents		
+				timeOrderPlaced = result.getString("time_order_placed");
+				payingWithCreditCard = result.getInt("paying_with_credit_card");
+				deliveryLocation = result.getString("delivery_location");
+
 
 				jsonOrderObject.put("order_id", orderId);
 				jsonOrderObject.put("name", name);
@@ -107,7 +107,6 @@ public class RetrieveOrdersServlet extends HttpServlet{
 				jsonOrderObject.put("paying_with_credit_card", payingWithCreditCard);
 				jsonOrderObject.put("price_of_order", priceOfOrder);
 				jsonOrderObject.put("time_order_placed", timeOrderPlaced);
-				jsonOrderObject.put("time_to_deliver", timeToDeliver);
 				jsonOrderObject.put("delivery_location", deliveryLocation);
 				jsonOrderArray.put(jsonOrderObject);
 			}
@@ -130,9 +129,9 @@ public class RetrieveOrdersServlet extends HttpServlet{
 			ps.setInt(1, orderId);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				menuId = rs.getInt(1); 
+				menuId = rs.getInt("menu_id"); 
 				menuItemName = MiscMethods.getNameForMenuId(menuId);
-				quantity = rs.getInt(2);
+				quantity = rs.getInt("quantity");
 				jsonOrder.put(menuItemName, quantity);
 			}
 			return jsonOrder;
