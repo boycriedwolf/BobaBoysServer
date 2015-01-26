@@ -130,10 +130,11 @@ public class CurrentDriverServlet extends HttpServlet{
   }
   
   /**
-   * @desc 
+   * @desc looks through the table of driver schedules to see which driver is driving
+   * on this particular day and time slot
    * @param day
    * @param timeBlock
-   * @return
+   * @return returns the driver id of the driver currently at work
    */
 
   public int findCurrentDriver(String day, String timeBlock) {
@@ -143,7 +144,8 @@ public class CurrentDriverServlet extends HttpServlet{
     int driverId = 0;
 
     try {
-      ps = con.prepareStatement("SELECT " + timeBlock + " FROM " + ServerConstants.DB_DRIVER_SCHEDULE_TABLE + " WHERE day = ?");
+      ps = con.prepareStatement("SELECT " + timeBlock + " FROM " 
+    + ServerConstants.DB_DRIVER_SCHEDULE_TABLE + " WHERE day = ?");
       ps.setString(1, day);
       rs = ps.executeQuery();
       if(rs.next()) {
@@ -156,6 +158,14 @@ public class CurrentDriverServlet extends HttpServlet{
     return driverId;
   }
 
+  /**
+   * @desc we want the user id of the driver to check if they
+   * are admins
+   * @param int driverId - the driver id associated with the driver
+   * @return int - returns the user id of the driver
+   */
+  
+  
   public int getUserIdOfDriver(int driverId) {
     Connection con = MiscMethods.establishDatabaseConnection();
     PreparedStatement ps;
@@ -163,7 +173,8 @@ public class CurrentDriverServlet extends HttpServlet{
     int userId = 0;
 
     try {
-      ps = con.prepareStatement("SELECT userId FROM " + ServerConstants.DB_DRIVER_TABLE + " WHERE driverId = ?");
+      ps = con.prepareStatement("SELECT userId FROM "
+    + ServerConstants.DB_DRIVER_TABLE + " WHERE driverId = ?");
       ps.setInt(1, driverId);
       rs = ps.executeQuery();
       if(rs.next()) {
@@ -176,6 +187,11 @@ public class CurrentDriverServlet extends HttpServlet{
     return userId;
   }
 
+  /**
+   * @desc check if the user id passed in is an admin
+   * @param int driverId - the user id of driver
+   * @return boolean - true if the driver is an admin
+   */
 
   public boolean checkIfDriverIsAdmin(int driverId) {
     Connection con = MiscMethods.establishDatabaseConnection();
@@ -185,7 +201,8 @@ public class CurrentDriverServlet extends HttpServlet{
     int adminAccount = 0;
 
     try {
-      ps = con.prepareStatement("SELECT admin_account FROM " + ServerConstants.DB_USER_TABLE + " WHERE user_id = ?");
+      ps = con.prepareStatement("SELECT admin_account FROM " 
+    + ServerConstants.DB_USER_TABLE + " WHERE user_id = ?");
       ps.setInt(1, userId);
       rs = ps.executeQuery();
       if(rs.next()) {

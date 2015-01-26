@@ -93,7 +93,7 @@ public class CheckoutOrderServlet extends HttpServlet{
    * can be applied to
    * @return int - the new discounted price of order
    */
-  
+
   private int newTotalPrice(int totalPrice, int numFreePMT, int numPMTInOrder) {
     int newTotalPrice = totalPrice;
     int priceOfPMT = MiscMethods.priceOfPearlMilkTea();
@@ -110,7 +110,7 @@ public class CheckoutOrderServlet extends HttpServlet{
    * @param JSONObject jsonOrder - contains the order details
    * @return int - the total cost of the order
    */
-  
+
   private int calculatePriceOfOrder(JSONObject jsonOrder) {
     Iterator<?> keys = jsonOrder.keys();
     int menuId = 0;
